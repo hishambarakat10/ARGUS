@@ -28,11 +28,11 @@ def load_initial_logs(file_path="/var/log/suricata/fast.log", count=10):
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'  # Replace with something secure
-VIRUSTOTAL_API_KEY = "111a10aea56259d602d50d583fbe32a130c4a3f1e8fe9b5e258eb2f184e211bf"  # Replace this with your actual key
+VIRUSTOTAL_API_KEY = ""  # Replace this with your actual key
 socketio = SocketIO(app, cors_allowed_origins="*")
-EMAIL_ADDRESS = "throwawayemail735144@gmail.com"
-EMAIL_PASSWORD = "iifvxgfzitannnsj"              # Generated via website
-EMAIL_RECEIVER = "throwawayemail735144@gmail.com" # 
+EMAIL_ADDRESS = ""
+EMAIL_PASSWORD = ""              # Generated via website
+EMAIL_RECEIVER = "" 
 
 log_data = []
 classification_counts = {}
