@@ -126,7 +126,7 @@ def dashboard():
     return render_template('dashboard.html', total_devices=total_devices, total_events=total_events)
 
 # ============================
-# CHAT API (LangChain + Gemini)
+# CHAT API (LangChain + OLlama)
 # ============================
 
 @app.route("/api/chat", methods=["POST"])
