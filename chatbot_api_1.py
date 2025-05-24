@@ -1,23 +1,14 @@
 from flask import Flask, request, jsonify
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import OllamaLLM
 from langchain.prompts import PromptTemplate
 import requests
 import re
 
 app = Flask(__name__)
 
-# Connect to Gemini via LangChain
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
-    temperature=0.2,
-    max_output_tokens=256,
-    google_api_key="AIzaSyCBXXTzMzNkViWV8c96LojxeWUMB1dyE1g"
-)
-
-# Point to Flask API running on 0.0.0.0 (your VM)
+llm = OllamaLLM(base_url="http://127.0.0.1:11434", model="llama3", max_tokens=100)
 VM_FLASK_API = "http://127.0.0.1:5000"
 
-# Load startup logs from fast.log
 def load_startup_logs(file_path="/var/log/suricata/fast.log", count=10):
     logs = []
     try:
@@ -34,7 +25,6 @@ def load_startup_logs(file_path="/var/log/suricata/fast.log", count=10):
         logs.append(f"Error loading fast.log: {str(e)}")
     return "\n".join(logs)
 
-# API calls
 def get_fast_log_data():
     try:
         res = requests.get(f"{VM_FLASK_API}/api/fast-log", timeout=5)
@@ -74,7 +64,6 @@ def get_open_ports():
     except Exception as e:
         return f"Error fetching open ports: {str(e)}"
 
-# Chatbot prompt template
 template = """
 You are Argus Sentinel — a slightly witty but serious Intrusion Detection System (IDS) assistant.
 
@@ -131,28 +120,9 @@ def chat():
             "cpu_health": cpu_health,
             "open_ports": open_ports
         })
-        # Convert AIMessage to string
-        response_text = str(response.content) if hasattr(response, 'content') else str(response)
-        return jsonify({"response": response_text})
+        return jsonify({"response": response})
     except Exception as e:
         return jsonify({"response": f"Chatbot error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    try:
-        print("Warming up Gemini chatbot with previous fast.log entries...")
-        log_data = load_startup_logs()
-        chart_data = get_chart_data()
-        cpu_health = get_cpu_health()
-        open_ports = get_open_ports()
-        _ = chain.invoke({
-            "question": "Summarize the most recent logs",
-            "log_data": log_data,
-            "chart_data": chart_data,
-            "cpu_health": cpu_health,
-            "open_ports": open_ports
-        })
-        print("Chatbot is warm and ready with startup logs.")
-    except Exception as e:
-        print(f"Warmup failed: {e}")
-
     app.run(host="0.0.0.0", port=5005)
